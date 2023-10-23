@@ -1,0 +1,7 @@
+# sshd_config
+Host *
+  PermitTunnel yes
+  PasswordAuthentication no
+  ForwardAgent yes
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null

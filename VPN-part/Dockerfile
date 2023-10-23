@@ -4,18 +4,8 @@ LABEL Maintainer = LoveSkylark
 RUN pacman -Syu --needed --noconfirm \
     git \
     openconnect \
-    openssh \
-    sudo \ 
-    dnsmasq \
-    # inetutils \
-    # inetutils-ping \
-    net-tools \
-    lsof \
-    wget \
-    curl \
-    # telnet \
-    bind-tools
-    
+    sudo
+
 RUN pacman -Syu --needed --noconfirm \
     python \
     python-attrs \
@@ -36,19 +26,8 @@ RUN pacman -Syu --needed --noconfirm \
     python-pytest-asyncio \
     python-pyxdg
 
-# Setup SSH server
-RUN ssh-keygen -A && echo 'root:password' | chpasswd
-
-# COPY sshd_config /etc/ssh/sshd_config
-
-RUN systemctl enable sshd
-EXPOSE 22
-
-
 # Setup X11 forwarding
 ENV DISPLAY=host.docker.internal:0
-EXPOSE 5900
-
 
 # makepkg user and workdir
 ARG user=makepkg
