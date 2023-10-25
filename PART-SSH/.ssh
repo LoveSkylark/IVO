@@ -1,0 +1,6 @@
+Host *.example.com
+  ProxyCommand ssh jumpbox nc %h %p 
+
+Host jumpbox
+  HostName jumpbox.example.com
+  User ubuntu
