@@ -1,22 +1,21 @@
-FROM archlinux/archlinux:latest
-
+FROM archlinux/archlinux:base-devel
 LABEL Maintainer = LoveSkylark 
 
-
-# Setup the builder
 RUN pacman -Syu --needed --noconfirm \
-    gcc \
-    make \
     git \
-    patch \
-    openssh \
-    binutils
-
-RUN pacman -Syu --needed --noconfirm \
     openconnect \
-    sudo \
-    fakeroot
-
+    openssh \
+    sudo \ 
+    dnsmasq \
+    # inetutils \
+    # inetutils-ping \
+    net-tools \
+    lsof \
+    wget \
+    curl \
+    # telnet \
+    bind-tools
+    
 RUN pacman -Syu --needed --noconfirm \
     python \
     python-attrs \
@@ -26,7 +25,7 @@ RUN pacman -Syu --needed --noconfirm \
     python-lxml \
     python-prompt_toolkit \
     python-pyqt5 \
-    # python-pyqtwebengine \
+    python-pyqtwebengine \
     python-pysocks \
     python-pyxdg \
     python-requests \
@@ -37,34 +36,33 @@ RUN pacman -Syu --needed --noconfirm \
     python-pytest-asyncio \
     python-pyxdg
 
+
 # Setup X11 forwarding
 ENV DISPLAY=host.docker.internal:0
+EXPOSE 5900
+
+RUN ssh-keygen -A
 
 # makepkg user and workdir
 ARG user=makepkg
 RUN useradd --system --create-home $user \
-  && echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user
+  && echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user \
+  && echo "$user:xxx" | chpasswd
 USER $user
+RUN ssh-keygen -A -f /home/$user/.ssh/id_rsa
 WORKDIR /home/$user
 
 # Install yay
 RUN git clone https://aur.archlinux.org/yay.git \
   && cd yay \
-  && makepkg -sri --needed --noconfirm > build.log \
-  && cat build.log \
+  && makepkg -sri --needed --noconfirm \
   && cd \
   # Clean up
   && rm -rf .cache yay
-  
-RUN yay -Syu --noconfirm \
-  && yay -S --noconfirm openconnect-sso \
-  && yay -Sc --noconfirm
+RUN yay -Syu --noconfirm
+RUN yay -S openconnect-sso --noconfirm
 
-# Clean up unnecessary packages
-RUN sudo pacman -Rns --noconfirm gcc make patch binutils
+#RUN systemctl enable sshd
+EXPOSE 2222
 
-# Clean up build artifacts
-RUN rm -rf yay
-
-# Clean up package cache
-RUN sudo pacman -Sc --noconfirm
+#CMD ["/usr/bin/sshd","-D"]
