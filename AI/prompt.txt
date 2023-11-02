@@ -1,5 +1,0 @@
-Act a Docker developer and build me a SSHD proxy docker server using archlinux/archlinux:latest
-
-The docker need to be listening on a port and forward the traffic with out requiering any authentication prompt.
-
-so conenction would look something like: "SSH -J localhost user@remoteserver"
