@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+  <server>${VPN_HOST}</server>
+  <authby>https</authby>
+  <http-proxy-url>https://firepower/vpn/auth</http-proxy-url>
+  <default-domain>example.com</default-domain>
+  <ciphers>DEFAULT</ciphers>
+  <authnoenc>0</authnoenc>
+  <authuser>${VPN_USER}</authuser>
+  <authpass>${VPN_PASS}</authpass>
+  <reconnect-timeout>30</reconnect-timeout>
+  <keepalive>120</keepalive>
+  <phase1-cipher>aes128-sha1</phase1-cipher>
+  <phase2-cipher>aes128-sha1</phase2-cipher>
+  <proxy-auth-headers>1</proxy-auth-headers>
+</config>

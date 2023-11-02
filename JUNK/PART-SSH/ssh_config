@@ -1,0 +1,5 @@
+Host *
+  	StrictHostKeyChecking no
+    Port 22
+    ForwardAgent yes
+  	UserKnownHostsFile /dev/null

@@ -1,68 +1,53 @@
-FROM archlinux/archlinux:base-devel
-LABEL Maintainer = LoveSkylark 
+FROM alpine
 
-RUN pacman -Syu --needed --noconfirm \
-    git \
+ENV DISPLAY=host.docker.internal:0.0
+ARG USER=vpn
+
+# Browser setup
+RUN apk --update --no-cache add \
+    firefox-esr \
+    ttf-dejavu \
+    ttf-liberation \
     openconnect \
     openssh \
-    sudo \ 
-    dnsmasq \
-    # inetutils \
-    # inetutils-ping \
-    net-tools \
-    lsof \
-    wget \
-    curl \
-    # telnet \
-    bind-tools
-    
-RUN pacman -Syu --needed --noconfirm \
-    python \
-    python-attrs \
-    python-colorama \
-    python-jaraco.classes \
-    python-keyring \
-    python-lxml \
-    python-prompt_toolkit \
-    python-pyqt5 \
-    python-pyqtwebengine \
-    python-pysocks \
-    python-pyxdg \
-    python-requests \
-    python-structlog \
-    python-toml \
-    python-setuptools \
-    python-pytest \
-    python-pytest-asyncio \
-    python-pyxdg
+    sudo \
+    tinyproxy \
+    python3 \
+    py3-pip \
+    build-base \
+    make \
+    musl-dev \
+    python3-dev \
+    py3-qt5 \
+    py3-qtwebengine
 
-# Setup SSH server
-RUN ssh-keygen -A && echo 'root:password' | chpasswd
+# OPENCONNECT-SSO
+RUN pip3 install --upgrade pip openconnect-sso[full]==0.7.3
 
-# COPY sshd_config /etc/ssh/sshd_config
+# PROXY
+RUN sed -i -e '/^Allow /s/^/#/' \
+    -e '/^ConnectPort /s/^/#/' \
+    -e '/^#DisableViaHeader /s/^#//' \
+    /etc/tinyproxy/tinyproxy.conf
+VOLUME /etc/tinyproxy
+EXPOSE 8888
 
-RUN systemctl enable sshd
-EXPOSE 22
+# SSH
+COPY sshd_config /etc/ssh/sshd_config
+RUN mkdir -p /data/ssh/
+EXPOSE 2222
 
+#Cleanup
+RUN rm -rf /var/cache/apk/*
 
-# Setup X11 forwarding
-ENV DISPLAY=host.docker.internal:0
-EXPOSE 5900
+# Create VPN user
+RUN adduser -D $USER && \
+    echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    echo "$USER:$USER" | chpasswd
 
+USER $USER
+WORKDIR /home/$USER
 
-# makepkg user and workdir
-ARG user=makepkg
-RUN useradd --system --create-home $user \
-  && echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user
-USER $user
-WORKDIR /home/$user
+COPY entrypoint.sh /entrypoint.sh
 
-# Install yay
-RUN git clone https://aur.archlinux.org/yay.git \
-  && cd yay \
-  && makepkg -sri --needed --noconfirm \
-  && cd \
-  # Clean up
-  && rm -rf .cache yay
-RUN yay -Syu --noconfirm
-RUN yay -S openconnect-sso --noconfirm
+ENTRYPOINT ["/entrypoint.sh"] 

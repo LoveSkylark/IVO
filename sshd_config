@@ -1,7 +1,13 @@
-# sshd_config
-Host *
-  PermitTunnel yes
-  PasswordAuthentication no
-  ForwardAgent yes
-  StrictHostKeyChecking no
-  UserKnownHostsFile /dev/null
+Port 2222
+
+HostKey /data/ssh/ssh_host_rsa_key
+HostKey /data/ssh/ssh_host_ecdsa_key
+HostKey /data/ssh/ssh_host_ed25519_key
+
+AllowUsers vpn
+
+AuthorizedKeysFile      .ssh/authorized_keys
+
+PasswordAuthentication no
+
+Subsystem       sftp    internal-sftp
