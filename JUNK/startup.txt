@@ -1,5 +1,0 @@
-docker run -it \
-  -e VPN_HOST="dummy" \
-  -e VPN_USER="testuser" \
-  -e VPN_PASS="testpadd"\
-  vpntest
