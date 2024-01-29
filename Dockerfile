@@ -3,6 +3,10 @@ FROM alpine
 ENV DISPLAY=host.docker.internal:0.0
 ARG USER=vpn
 
+ENV SERVER="" 
+ENV OPTIONS=""
+ENV PROTOCOL=""
+
 # Browser setup
 RUN apk --update --no-cache add \
     firefox-esr \
@@ -19,10 +23,13 @@ RUN apk --update --no-cache add \
     musl-dev \
     python3-dev \
     py3-qt5 \
-    py3-qtwebengine
+    py3-qtwebengine \
+    cairo-dev \
+    gobject-introspection-dev \
+    webkit2gtk
 
 # OPENCONNECT-SSO
-RUN pip3 install --upgrade pip openconnect-sso[full]==0.7.3
+RUN pip3 install https://github.com/dlenski/gp-saml-gui/archive/master.zip
 
 # PROXY
 RUN sed -i -e '/^Allow /s/^/#/' \
@@ -50,4 +57,4 @@ WORKDIR /home/$USER
 
 COPY entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"] 
+ENTRYPOINT ["/entrypoint.sh"]

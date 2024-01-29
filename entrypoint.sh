@@ -41,7 +41,10 @@ echo "Setting key file permissions"
 sudo chmod o+r /data/ssh/ssh_host*_key
 
 /usr/sbin/sshd -D &
+/usr/bin/tinyproxy -d &
 
-openconnect-sso -s https://fjartenging.reykjavik.is &
+# GET SSO Token
+eval $( gp-saml-gui --gateway $SERVER $OPTIONS )
 
-/usr/bin/tinyproxy -d $
+# Connect to VPN using Token
+echo "$COOKIE" | sudo openconnect --protocol="$PROTOCOL" -u "$USER" --os="$OS" --passwd-on-stdin "$HOST"
